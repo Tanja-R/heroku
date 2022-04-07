@@ -7,14 +7,20 @@ const db = [{ name: "tiina" }, { name: "jack" }];
 
 let config = {
   host: "mydb.tamk.fi",
-  user: process.env.user,
+  user: process.env.db_user,
   password: process.env.password,
   database: process.env.database,
 };
 
 var connection = mysql.createConnection(config);
+
+connection.connect((err) => {
+  if (err) console.log(err);
+  else console.log("Database connection created.");
+});
+
 app.get("/", (req, res) => {
-  connection.query("SELECT * from location", (error, results) => {
+  connection.query("SELECT * from locations", (error, results) => {
     if (error) {
       console.log(error);
     } else {

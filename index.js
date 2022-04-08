@@ -16,6 +16,10 @@ let config = {
   database: process.env.database,
 };
 
+app.use((req, res, next) => {
+  console.log("Time:", Date.now());
+  next();
+});
 app.use(express.json());
 app.use("/locations", locations);
 

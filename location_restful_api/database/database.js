@@ -4,29 +4,48 @@ const validate = require("../validation/validator.js");
 const locationSchema = require("../validation/location-schema.js");
 
 let config = {
+  connectionLimit: 10,
   host: "mydb.tamk.fi",
   user: process.env.db_user,
   password: process.env.password,
   database: process.env.database,
 };
-const connection = mysql.createConnection(config);
+const pool = mysql.createPool(config);
 
 let connectionFunctions = {
   connect: () => {
     function f(resolve, reject) {
-      connection.connect((err) => {
+      pool.getConnection((err, connection) => {
         if (err) reject(err);
-        else resolve("Database connection created.");
+        else resolve(connection);
       });
     }
     return new Promise(f);
   },
   close: () => {
     function f(resolve, reject) {
+      pool.end((err) => {
+        if (err) reject(err);
+        // all connections in the pool have ended
+        else resolve("Connections to the database closed.");
+      });
+    }
+    return new Promise(f);
+  },
+  endConnection: (connection) => {
+    function f(resolve, reject) {
       connection.end((err) => {
         if (err) reject(err);
-        else resolve("Database connection closed.");
+        else resolve("This connection to the database ended.");
       });
+    }
+    return new Promise(f);
+  },
+  // How to handle error with connection.release()?
+  releaseConnection: (connection) => {
+    function f(resolve, reject) {
+      connection.release();
+      resolve("Database connection released.");
     }
     return new Promise(f);
   },
@@ -47,14 +66,14 @@ let connectionFunctions = {
       } else {
         //try inserting after successful validation.
         let sql = `insert into locations (latitude, longitude) values (?, ?)`;
-        connection.query(
+        pool.query(
           sql,
           [location.latitude, location.longitude],
           (err, result) => {
             //reject if error happened.
             if (err) reject(err);
-            else resolve(result.insertId);
             //resolve if saving was successful.
+            else resolve(result.insertId);
           }
         );
       }
@@ -63,7 +82,7 @@ let connectionFunctions = {
   },
   findAll: () => {
     function f(resolve, reject) {
-      connection.query("select * from locations", (err, locations) => {
+      pool.query("select * from locations", (err, locations) => {
         if (err) reject(err);
         else resolve(locations);
       });
@@ -73,7 +92,7 @@ let connectionFunctions = {
   deleteById: (id) => {
     function f(resolve, reject) {
       let sql = "delete from locations where id = ?";
-      connection.query(sql, id, (err, result) => {
+      pool.query(sql, id, (err, result) => {
         if (err) reject(err);
         else resolve(result.affectedRows);
       });
@@ -83,7 +102,7 @@ let connectionFunctions = {
   findById: (id) => {
     function f(resolve, reject) {
       let sql = "select * from locations where id = ?";
-      connection.query(sql, id, (err, locations) => {
+      pool.query(sql, id, (err, locations) => {
         if (err) reject(err); //reject if an error happens.
         else if (locations.length === 0) resolve(null); //empty result
         else resolve(locations[0]); //location found

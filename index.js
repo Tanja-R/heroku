@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const express = require("express");
 require("dotenv").config();
-//const cors = require("cors");
+const cors = require("cors");
 
 const locations = require("./location_restful_api/routes/locations.js");
 
@@ -16,7 +16,7 @@ let config = {
   database: process.env.database,
 };
 
-//app.use(cors());
+app.use(cors());
 app.use(express.static("frontend/build"));
 app.use(express.static("public"));
 app.use(express.json());

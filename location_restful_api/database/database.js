@@ -3,8 +3,12 @@ const mysql = require("mysql");
 const validate = require("../validation/validator.js");
 const locationSchema = require("../validation/location-schema.js");
 
-const config = require("./connection-config.js");
-
+let config = {
+  host: "mydb.tamk.fi",
+  user: process.env.db_user,
+  password: process.env.password,
+  database: process.env.database,
+};
 const connection = mysql.createConnection(config);
 
 let connectionFunctions = {

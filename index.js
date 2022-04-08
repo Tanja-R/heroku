@@ -1,9 +1,9 @@
 const mysql = require("mysql");
 const express = require("express");
 require("dotenv").config();
+const cors = require("cors");
 
 const locations = require("./location_restful_api/routes/locations.js");
-const database = require("./location_restful_api/database/database.js");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -16,8 +16,9 @@ let config = {
   database: process.env.database,
 };
 
+app.use(cors());
 app.use((req, res, next) => {
-  console.log("Time:", Date.now());
+  res.header("Access-Control-Allow-Origin", "*");
   next();
 });
 app.use(express.json());

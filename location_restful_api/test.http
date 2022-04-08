@@ -1,0 +1,13 @@
+GET http://localhost:8080/locations
+
+###
+DELETE http://localhost:8080/locations/1
+
+###
+GET http://localhost:8080/locations/2
+
+###
+POST http://localhost:8080/locations
+Content-type: application/json
+
+{"latitude": 50, "longitude": 50}

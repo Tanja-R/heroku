@@ -1,17 +1,13 @@
-/**
- * @author Jussi Pohjolainen
- */
-
 import "./App.css";
 import React from "react";
+import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 class App extends React.Component {
   state = { locations: [] };
 
   async componentDidMount() {
-    let hr = await fetch("http://localhost:8080/locations");
-    let json = await hr.json();
-    this.setState({ locations: json });
+    let results = await axios.get("/locations");
+    this.setState({ locations: results.data });
   }
 
   render() {

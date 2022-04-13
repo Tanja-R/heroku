@@ -30,12 +30,36 @@ class App extends React.Component {
       ));
 
       return (
-        <MapContainer center={[51.505, -0.09]} zoom={2} scrollWheelZoom={false}>
+        <MapContainer
+          center={[51.505, -0.09]}
+          zoom={2}
+          scrollWheelZoom={false}
+          whenCreated={(map) => {
+            map.on("dblclick", async (e) => {
+              console.log(e.latlng);
+              let location = {
+                latitude: e.latlng.lat,
+                longitude: e.latlng.lng,
+              };
+              try {
+                console.log(
+                  "Location: " + location.latitude + " " + location.longitude
+                );
+                let result = await axios.post("/locations", location);
+                console.log("result: " + result.data.id);
+                location.id = result.data.id;
+                window.location.reload();
+              } catch (err) {
+                console.log(err);
+              }
+            });
+          }}
+        >
           <TileLayer
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <>{markers}</>
+          {markers}
         </MapContainer>
       );
     }
